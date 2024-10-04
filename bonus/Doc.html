@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jetpack to Tech3 - Dino Run</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2f2f2f;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #f0a500;
+            border-bottom: 2px solid #f0a500;
+        }
+        p, li {
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        strong {
+            color: #f0a500;
+        }
+        #avm-input {
+            width: 100%;
+            height: 200px;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #3f3f3f;
+            color: #f0a500;
+            font-size: 16px;
+        }
+        /* Dino Run CSS */
+        .dino {
+            position: absolute;
+            height: 50px;
+            width: 50px;
+            background-color: green;
+            bottom: 0;
+        }
+        .block {
+        position: absolute;
+        height: 20px;
+        width: 20px;
+        background-color: red;
+        bottom: 0;
+        right: 0;
+    }
+
+    /* Modify the Play button style */
+    #play-btn {
+        display: block;
+        width: 200px;
+        height: 50px;
+        margin: 20px auto;
+        background-color: #f0a500;
+        color: #2f2f2f;
+        border: none;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 50px;
+    }
+
+    #game {
+        height: 200px;
+        width: 100%;
+        background-color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes block {
+        from {
+            right: -50px;
+        }
+        to {
+            right: 100%;
+        }
+    }
+
+    @keyframes fly {
+        0% {
+            top: 150px;
+        }
+        50% {
+            top: 100px;
+        }
+        100% {
+            top: 150px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Jetpack to Tech3 Server</h1>
+    <p>The goal of this project is to create the server of a multiplayer version of the game Jetpack Joyride. The
+        server's network layer needs to be handled. The server must be able to accept 2 clients and implement a
+        protocol for communication.</p>
+    <h2>Instructions</h2>
+    <ul>
+        <li><strong>ID:</strong> Client asks for its ID (positive and unique).</li>
+        <li><strong>MAP:</strong> Client asks for the map.</li>
+        <li><strong>READY:</strong> Client tells that it has received its id and map and that it’s waiting for the
+            game to start.
+        </li>
+        <li><strong>FIRE:</strong> Client tells the server about the change in the state of the jetpack ('0' if
+            deactivated, '1' if activated).
+        </li>
+        <li><strong>START:</strong> Server tells that the 2 players are connected and ready and that the game is
+            beginning.
+        </li>
+        <li><strong>PLAYER:</strong> Server sends the state of a player.</li>
+        <li><strong>COIN:</strong> Server tells that a player has found a coin.</li>
+        <li><strong>FINISH:</strong> Server tells that the game is over and who the winner is.</li>
+    </ul>
+    <h2>Offline Jetpack Joyride</h2>
+    <div id="game">
+        <div id="dino" class="dino"></div>
+        <div id="block" class="block"></div>
+    </div>
+</div>
+
+<button id="play-btn">Play</button>
+<script>
+    var dino = document.getElementById('dino');
+    var block = document.getElementById('block');
+    var playButton = document.getElementById('play-btn');
+
+    let isJumping = false;
+    let isGameStarted = false;
+    let counter = 0;
+
+    function fly() {
+        if (!isJumping) {
+            isJumping = true;
+            if (dino.classList != "fly") {
+                dino.style.animation = "fly 0.8s";
+            }
+            setTimeout(() => {
+                dino.style.animation = "";
+                isJumping = false;
+            }, 800);
+        }
+    }
+
+    function checkDead() {
+        let dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue("top"));
+        let blockLeft = parseInt(window.getComputedStyle(block).getPropertyValue("left"));
+
+        if(blockLeft<20 && blockLeft>-20 && dinoTop>=130) {
+            block.style.animation = "none";
+            alert("Game Over. Score: " + Math.floor(counter/100));
+            counter=0;
+            block.style.animation = "block 1s infinite linear";
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') {
+            event.preventDefault();
+            if (isGameStarted) {
+                fly();
+            }
+        }
+    });
+    playButton.addEventListener('click', function() {
+    if (!isGameStarted) {
+        isGameStarted = true;
+        block.style.animation = "block 1s infinite linear"; // Start the block animation
+        setInterval(() => {
+            checkDead();
+            counter++;
+        }, 10);
+    }
+});
+
+</script>
+</body>
+</html>
